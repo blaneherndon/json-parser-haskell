@@ -152,11 +152,16 @@ jsonObject =
     )
   where
     pair =
-      fmap (\key _ value -> (key, value)) stringLiteral <*> (ws *> parseChar ':' <* ws) <*> jsonValue
+      (\key _ value -> (key, value)) <$> stringLiteral <*> (ws *> parseChar ':' <* ws) <*> jsonValue
 
 -- Create a parser that is capable to parse JsonValue
 jsonValue :: Parser JsonValue
 jsonValue = jsonNull <|> jsonBool <|> jsonNumber <|> jsonString <|> jsonArray <|> jsonObject
+
+parseFile :: FilePath -> Parser a -> IO (JsonOutput a)
+parseFile fileName parser = do
+  input <- readFile fileName
+  return (runParser parser input)
 
 main :: IO ()
 main = undefined
